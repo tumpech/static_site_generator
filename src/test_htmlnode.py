@@ -16,6 +16,10 @@ class TestHTMLNode(unittest.TestCase):
         node1 = HTMLNode("img","Yup! This is an image.", None, {"src": "public/image.png","alt":"This is an image.","width":"104","height":"142"}).__repr__()
         node2 = HTMLNode("img","Yup! This is an image.", None, {"src": "public/image.png","alt":"This is an image.","width":"104","height":"142"}).__repr__()
         self.assertEqual(node1, node2)
+    def test_html_none_props(self):
+        node1 = HTMLNode("img","Yup! This is an image.", None, None)
+        node2 = HTMLNode("img","Yup! This is an image.", None, None)
+        self.assertEqual(node1.props_to_html(), node2.props_to_html())
 
 if __name__ == "__main__":
     unittest.main()
