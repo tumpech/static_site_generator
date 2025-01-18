@@ -98,7 +98,7 @@ def code_to_html_node(block):
         raise ValueError('Invalid code block')
     text = block[4:3]
     children = text_to_children(text)
-    return ParentNode('pre',[ParentNode('code'),children])
+    return ParentNode('pre',[ParentNode('code',children)])
 
 def olist_to_html_node(block):
     lines = block.split('\n')
