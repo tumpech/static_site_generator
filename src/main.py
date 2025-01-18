@@ -44,12 +44,25 @@ def generate_page(from_path, template_path, dest_path):
         f.write(html)
     return True
 
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    for element in os.listdir(dir_path_content):
+        joined_content = os.path.join(dir_path_content,element)
+        joined_dest    = os.path.join(dest_dir_path,element.replace("md","html",-1))
+        if os.path.isdir(joined_content):
+            generate_pages_recursive(joined_content, template_path, joined_dest)
+        elif joined_content.split('.')[-1] == "md":
+            joined_dest = joined_dest[::-1].replace(".md"[::-1],".html"[::-1],1)[::-1]
+            generate_page(joined_content, template_path, joined_dest)
+        else:
+            continue
+    return True
 
 def main():
     print("Copy static start")
     copy_folder(os.path.join(PROJECT_PATH,'static'),os.path.join(PROJECT_PATH,'public'))
     print('Copy static end')
-    print(generate_page(os.path.join(PROJECT_PATH,"content/index.md"),os.path.join(PROJECT_PATH,"template.html"),os.path.join(PROJECT_PATH,"public/index.html")))
+    generate_pages_recursive(os.path.join(PROJECT_PATH,"content"),os.path.join(PROJECT_PATH,"template.html"),os.path.join(PROJECT_PATH,"public"))
+    print('Generation of pages done')
     #print(TextNode("This is a text node",TextType.BOLD,"https://www.boot.dev"))
 
 if __name__ == "__main__":
