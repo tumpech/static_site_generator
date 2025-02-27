@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from textnode import TextNode, TextType
-import os,shutil
+import os,sys,shutil
 from markdown_blocks import markdown_to_html_node
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -29,7 +29,7 @@ def extract_title(markdown):
         if line.startswith('# '):
             return line.strip('#').strip()
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(basepath,from_path, template_path, dest_path):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     with open(from_path, "r") as f:
         content = f.read()
@@ -38,30 +38,33 @@ def generate_page(from_path, template_path, dest_path):
     content_node = markdown_to_html_node(content)
     content_html = content_node.to_html()
     header = extract_title(content)
-    html = template.replace('{{ Title }}', header).replace('{{ Content }}', content_html)
+    html = template.replace('{{ Title }}', header).replace('{{ Content }}', content_html).replace('href="/',f'href="{basepath}').replace('src="/',f'src="{basepath}')
     os.makedirs(os.path.dirname(dest_path),exist_ok=True)
     with open(dest_path, "w") as f:
         f.write(html)
     return True
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(basepath,dir_path_content, template_path, dest_dir_path):
     for element in os.listdir(dir_path_content):
         joined_content = os.path.join(dir_path_content,element)
         joined_dest    = os.path.join(dest_dir_path,element.replace("md","html",-1))
         if os.path.isdir(joined_content):
-            generate_pages_recursive(joined_content, template_path, joined_dest)
+            generate_pages_recursive(basepath,joined_content, template_path, joined_dest)
         elif joined_content.split('.')[-1] == "md":
             joined_dest = joined_dest[::-1].replace(".md"[::-1],".html"[::-1],1)[::-1]
-            generate_page(joined_content, template_path, joined_dest)
+            generate_page(basepath,joined_content, template_path, joined_dest)
         else:
             continue
     return True
 
 def main():
+    basepath = "/"
+    if len(sys.argv) > 1:
+        basepath = sys.argv[1]
     print("Copy static start")
-    copy_folder(os.path.join(PROJECT_PATH,'static'),os.path.join(PROJECT_PATH,'public'))
+    copy_folder(os.path.join(PROJECT_PATH,'static'),os.path.join(PROJECT_PATH,'docs'))
     print('Copy static end')
-    generate_pages_recursive(os.path.join(PROJECT_PATH,"content"),os.path.join(PROJECT_PATH,"template.html"),os.path.join(PROJECT_PATH,"public"))
+    generate_pages_recursive(basepath,os.path.join(PROJECT_PATH,"content"),os.path.join(PROJECT_PATH,"template.html"),os.path.join(PROJECT_PATH,"docs"))
     print('Generation of pages done')
     #print(TextNode("This is a text node",TextType.BOLD,"https://www.boot.dev"))
 

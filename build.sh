@@ -1,0 +1,1 @@
+python3 src/main.py "https://tumpech.github.io/static_site_generator"
